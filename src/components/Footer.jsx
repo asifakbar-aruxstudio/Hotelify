@@ -24,9 +24,9 @@ const Footer = () => {
             <ul className="space-y-2">
               {["Home", "About", "Services", "Contact"].map((link) => (
                 <li key={link}>
-                  <a href="#" className="hover:text-white transition">
+                  <link href="#" className="hover:text-white transition">
                     {link}
-                  </a>
+                  </link>
                 </li>
               ))}
             </ul>
@@ -38,9 +38,9 @@ const Footer = () => {
             <ul className="space-y-2">
               {["Web Development", "UI/UX Design", "SEO", "Consulting"].map((service) => (
                 <li key={service}>
-                  <a href="#" className="hover:text-white transition">
+                  <link href="#" className="hover:text-white transition">
                     {service}
-                  </a>
+                  </link>
                 </li>
               ))}
             </ul>
@@ -79,13 +79,13 @@ const Footer = () => {
           {/* Social Icons */}
           <div className="flex gap-4">
             {[FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn].map((Icon, i) => (
-              <a
+              <link
                 key={i}
                 href="#"
                 className="bg-gray-800 p-2 rounded-full hover:bg-blue-600 transition"
               >
                 <Icon className="text-sm text-white" />
-              </a>
+              </link>
             ))}
           </div>
 
