@@ -58,9 +58,11 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Enter email"
-                className="w-full px-4 py-2 rounded bg-gray-800 text-sm focus:outline-none"
+                className="w-full px-4 py-2 rounded bg-green-500 text-sm focus:outline-none 
+                text-gray-900 hover:bg-green-900 transition"
               />
-              <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white text-sm">
+              <button className="bg-green-500 hover:bg-green-900 px-4 py-2 rounded 
+              text-white text-sm">
                 Subscribe
               </button>
             </form>
@@ -69,7 +71,8 @@ const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-green-700 mt-10 pt-6 flex flex-col md:flex-row 
+        justify-between items-center gap-4">
 
           {/* Copyright */}
           <p className="text-sm text-gray-400">
@@ -82,7 +85,7 @@ const Footer = () => {
               <a
                 key={i}
                 href="#"
-                className="bg-gray-800 p-2 rounded-full hover:bg-blue-600 transition"
+                className="bg-green-500 p-2 rounded-full hover:bg-green-900 transition"
               >
                 <Icon className="text-sm text-white" />
               </a>
