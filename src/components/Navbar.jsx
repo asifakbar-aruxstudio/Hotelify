@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  const navLinks = [
+  
+    const navLinks = [
     { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "Hotels", path: "/hotels" },
-    { name: "Rooms", path: "/rooms" },
+    { name: "About", path: "/About" },
+    { name: "Hotels", path: "/Hotels" },
+    { name: "Rooms", path: "/Rooms" },
   ];
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,7 +34,7 @@ const Navbar = () => {
         ))}
 
         <button className="border px-4 py-1 text-sm rounded-full hover:bg-white hover:text-black transition">
-          New Launch
+          Register Hotel
         </button>
       </div>
 
@@ -63,7 +64,9 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-0 left-0 w-full h-screen bg-white text-gray-800 flex flex-col items-center justify-center gap-6 transition-transform duration-500 ${
+        className={`fixed top-0 left-0 w-full h-screen bg-white text-gray-800 
+        flex flex-col items-center justify-center gap-6 transition-transform 
+        duration-500 ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
