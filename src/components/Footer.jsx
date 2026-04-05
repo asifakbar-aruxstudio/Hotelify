@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <h2 className="text-2xl font-bold text-white mb-4">
-              HOTELIFY
+              YourBrand
             </h2>
             <p className="text-sm leading-6">
               We build modern web solutions with high performance and beautiful UI.
@@ -24,9 +24,9 @@ const Footer = () => {
             <ul className="space-y-2">
               {["Home", "About", "Services", "Contact"].map((link) => (
                 <li key={link}>
-                  <link href="#" className="hover:text-white transition">
+                  <a href="#" className="hover:text-white transition">
                     {link}
-                  </link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -38,9 +38,9 @@ const Footer = () => {
             <ul className="space-y-2">
               {["Web Development", "UI/UX Design", "SEO", "Consulting"].map((service) => (
                 <li key={service}>
-                  <link href="#" className="hover:text-white transition">
+                  <a href="#" className="hover:text-white transition">
                     {service}
-                  </link>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -79,13 +79,13 @@ const Footer = () => {
           {/* Social Icons */}
           <div className="flex gap-4">
             {[FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn].map((Icon, i) => (
-              <link
+              <a
                 key={i}
                 href="#"
                 className="bg-gray-800 p-2 rounded-full hover:bg-blue-600 transition"
               >
                 <Icon className="text-sm text-white" />
-              </link>
+              </a>
             ))}
           </div>
 
