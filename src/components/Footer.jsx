@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <h2 className="text-2xl font-bold text-white mb-4">
-              YourBrand
+              HOTELIFY
             </h2>
             <p className="text-sm leading-6">
               We build modern web solutions with high performance and beautiful UI.
