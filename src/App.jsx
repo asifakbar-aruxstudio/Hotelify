@@ -17,6 +17,7 @@ function App() {
     <>
       {!ownerPath && <Navbar />}     
       <Routes>
+      
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/hotels" element={<Hotels />} />
