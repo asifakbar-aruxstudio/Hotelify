@@ -51,6 +51,8 @@ const Navbar = () => {
         </button>
       </div>
 
+
+
       {/* Mobile Menu Button */}
       <div className="md:hidden">
         <button onClick={() => setIsMenuOpen(true)}>
@@ -83,23 +85,27 @@ const Navbar = () => {
           ✕
         </button>
 
-        {navLinks.map((link, i) => (
+        { 
+          navLinks.map((link, i) => (
           <Link
             key={i}
             to={link.path}
             onClick={() => setIsMenuOpen(false)}
-            className="text-lg"
-          >
+            className="text-lg">
             {link.name}
           </Link>
         ))}
 
         <button className="border px-4 py-1 rounded-full">
+         <Link to="/signup"  onClick={() => setIsMenuOpen(false)}> 
           Register Hotel
+          </Link>
         </button>
 
-        <button className="bg-black text-white px-6 py-2 rounded-full">
-          Login
+        <button className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-900 hover:text-black transition ">
+          <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+            Login
+          </Link>
         </button>
       </div>
     </nav>
