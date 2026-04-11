@@ -7,13 +7,14 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
     { name: "Hotels", path: "/hotels" },
-    { name: "Rooms", path: "/rooms" },
+    { name: "Rooms", path: "/rooms" }
+
   ];
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-green-900 text-white flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 py-4 z-50">
+    <nav className="w-full bg-green-900 text-white flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 py-4 z-50">
 
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2">
@@ -27,21 +28,26 @@ const Navbar = () => {
             key={i}
             to={link.path}
             className="group flex flex-col gap-0.5"
-          >
+          > 
             {link.name}
             <span className="bg-white h-0.5 w-0 group-hover:w-full transition-all duration-300" />
           </Link>
         ))}
 
-        <button className="border px-4 py-1 text-sm rounded-full hover:bg-white hover:text-black transition">
+         <button link to="/signup" className="border px-4 py-1 text-sm rounded-full hover:bg-white 
+        hover:text-black transition"> 
+        <Link to="/signup"> 
           Register Hotel
+          </Link>
         </button>
       </div>
 
       {/* Desktop Right */}
       <div className="hidden md:flex items-center gap-4">
         <button className="bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200 transition">
+        <Link to="/login" className="text-black no-underline">
           Login
+        </Link>
         </button>
       </div>
 
@@ -89,7 +95,7 @@ const Navbar = () => {
         ))}
 
         <button className="border px-4 py-1 rounded-full">
-          New Launch
+          Register Hotel
         </button>
 
         <button className="bg-black text-white px-6 py-2 rounded-full">
