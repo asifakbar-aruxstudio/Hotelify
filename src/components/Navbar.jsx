@@ -104,7 +104,7 @@ const Navbar = () => {
 
         <button className="bg-green-500 text-white px-6 py-2 rounded-full 
                 hover:bg-green-900 hover:text-black transition">
-          <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+        <Link to="/login" onClick={() => setIsMenuOpen(false)}>
             Login
           </Link>
         </button>
