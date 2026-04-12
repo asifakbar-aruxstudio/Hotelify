@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ const Login = () => {
           <div className="p-8 sm:p-10">
             <div className="text-center mb-8">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30">
-                <FaLock className="w-6 h-6 text-white" />
+                <HiOutlineLockClosed className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
               <p className="text-sm text-gray-500 mt-2">Sign in to continue to Hotelify</p>
@@ -40,7 +40,7 @@ const Login = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <FaEnvelope className="w-4 h-4 text-gray-400" />
+                    <HiOutlineMail className="w-5 h-5 text-gray-400" />
                   </div>
                   <input
                     id="email"
@@ -60,7 +60,7 @@ const Login = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <FaLock className="w-4 h-4 text-gray-400" />
+                    <HiOutlineLockClosed className="w-5 h-5 text-gray-400" />
                   </div>
                   <input
                     id="password"
@@ -76,7 +76,7 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <FaEyeSlash className="w-4 h-4" /> : <FaEye className="w-4 h-4" />}
+                    {showPassword ? <HiOutlineEyeOff className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
