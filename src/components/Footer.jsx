@@ -1,99 +1,125 @@
+import { Link } from "react-router-dom";
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+
+const footerLinks = {
+  company: [
+    { name: "About Us", path: "/about" },
+    { name: "Careers", path: "/careers" },
+    { name: "Blog", path: "/blog" },
+    { name: "Contact", path: "/contact" },
+  ],
+  services: [
+    { name: "Hotel Management", path: "/services/management" },
+    { name: "Booking System", path: "/services/booking" },
+    { name: "Revenue Management", path: "/services/revenue" },
+    { name: "Marketing", path: "/services/marketing" },
+  ],
+  legal: [
+    { name: "Privacy Policy", path: "/privacy" },
+    { name: "Terms of Service", path: "/terms" },
+    { name: "Cookie Policy", path: "/cookies" },
+  ],
+};
+
+const socialLinks = [
+  { icon: FaFacebookF, href: "#", label: "Facebook" },
+  { icon: FaTwitter, href: "#", label: "Twitter" },
+  { icon: FaInstagram, href: "#", label: "Instagram" },
+  { icon: FaLinkedinIn, href: "#", label: "LinkedIn" },
+];
 
 const Footer = () => {
   return (
-    <footer className="bg-green-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-
-          {/* Brand */}
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Hotelify
-            </h2>
-            <p className="text-sm leading-6">
-              We build modern web solutions with high performance and beautiful UI.
+    <footer className="bg-gray-900 text-gray-400">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+          <div className="lg:col-span-2">
+            <Link to="/" className="inline-block mb-4">
+              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                Hotelify
+              </span>
+            </Link>
+            <p className="text-sm leading-relaxed mb-6 max-w-sm">
+              Simplify your hotel management with our all-in-one platform. 
+              Streamline bookings, automate operations, and boost revenue.
             </p>
+            <div className="flex gap-3">
+              {socialLinks.map(({ icon: Icon, href, label }) => (
+                <Link
+                  key={label}
+                  to={href}
+                  aria-label={label}
+                  className="p-2.5 rounded-lg bg-gray-800 hover:bg-emerald-500 hover:text-white text-gray-400 transition-all duration-200"
+                >
+                  <Icon className="w-4 h-4" />
+                </Link>
+              ))}
+            </div>
           </div>
 
-          {/* Links */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              {["Home", "About", "Services", "Contact"].map((link) => (
-                <li key={link}>
-                  <a href="#" className="hover:text-white transition">
-                    {link}
-                  </a>
+            <h3 className="text-white font-semibold mb-4">Company</h3>
+            <ul className="space-y-3">
+              {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.path} className="text-sm hover:text-emerald-400 transition-colors">
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Services</h3>
-            <ul className="space-y-2">
-              {["Web Development", "UI/UX Design", "SEO", "Consulting"].map((service) => (
-                <li key={service}>
-                  <a href="#" className="hover:text-white transition">
-                    {service}
-                  </a>
+            <h3 className="text-white font-semibold mb-4">Services</h3>
+            <ul className="space-y-3">
+              {footerLinks.services.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.path} className="text-sm hover:text-emerald-400 transition-colors">
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Newsletter */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Subscribe
-            </h3>
+            <h3 className="text-white font-semibold mb-4">Stay Updated</h3>
             <p className="text-sm mb-4">
-              Get latest updates and offers.
+              Subscribe to get the latest news and offers.
             </p>
-            <form className="flex flex-col sm:flex-row gap-2">
+            <form className="flex flex-col gap-2">
               <input
                 type="email"
-                placeholder="Enter email"
-                className="w-full px-4 py-2 rounded bg-green-500 text-sm focus:outline-none 
-                text-gray-900 hover:bg-green-900 transition"
+                placeholder="Enter your email"
+                className="px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-sm focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-gray-500"
               />
-              <button className="bg-green-500 hover:bg-green-900 px-4 py-2 rounded 
-              text-white text-sm">
+              <button
+                type="submit"
+                className="px-4 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600 transition-colors"
+              >
                 Subscribe
               </button>
             </form>
           </div>
-
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-green-700 mt-10 pt-6 flex flex-col md:flex-row 
-        justify-between items-center gap-4">
-
-          {/* Copyright */}
-          <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} YourBrand. All rights reserved.
+        <div className="py-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm">
+            © {new Date().getFullYear()} Hotelify. All rights reserved.
           </p>
-
-          {/* Social Icons */}
-          <div className="flex gap-4">
-            {[FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="bg-green-500 p-2 rounded-full hover:bg-green-900 transition"
+          <div className="flex gap-6">
+            {footerLinks.legal.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className="text-sm hover:text-emerald-400 transition-colors"
               >
-                <Icon className="text-sm text-white" />
-              </a>
+                {link.name}
+              </Link>
             ))}
           </div>
-
         </div>
-
       </div>
     </footer>
   );
