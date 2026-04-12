@@ -105,9 +105,9 @@ export default function LoginForm() {
 
           {/* Forgot password */}
           <div className="text-right pt-0.5">
-            <a href="#" className="text-sm text-indigo-500 hover:text-indigo-600 transition-colors">
+            <Link to="/forgot-password" className="text-sm text-indigo-500 hover:text-indigo-600 transition-colors">
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           {/* Submit */}
@@ -122,9 +122,9 @@ export default function LoginForm() {
         {/* Sign up link */}
         <p className="text-center text-sm text-gray-500 mt-5">
           Don't have an account?{" "}
-          <a href="#" className="text-indigo-500 hover:text-indigo-600 font-medium transition-colors">
-            Create one
-          </a>
+          <Link to="/signup" className="text-indigo-500 hover:text-indigo-600 font-medium transition-colors">
+            Create Account
+          </Link>
         </p>
       </div>
     </div>

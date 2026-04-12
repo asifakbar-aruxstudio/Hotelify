@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+
 const Navbar = () => {
   
     const navLinks = [
@@ -44,7 +45,8 @@ const Navbar = () => {
 
       {/* Desktop Right */}
       <div className="hidden md:flex items-center gap-4">
-        <button className="bg-white text-black px-6 py-2 rounded-full hover:bg-gray-200 transition">
+        <button className="bg-white text-black px-6 py-2 rounded-full 
+        hover:bg-green-200 transition">
         <Link to="/login" className="text-black no-underline">
           Login
         </Link>
@@ -96,14 +98,15 @@ const Navbar = () => {
           </Link>
         ))}
 
-        <button className="border px-4 py-1 rounded-full">
+        <button className="text-white border border-white px-4 py-2 rounded-full bg-green-900 
+        hover:bg-white hover:text-black transition">
          <Link to="/signup"  onClick={() => setIsMenuOpen(false)}> 
           Register Hotel
           </Link>
         </button>
 
-        <button className="bg-green-500 text-white px-6 py-2 rounded-full 
-                hover:bg-green-900 hover:text-black transition">
+        <button className="bg-green-900 text-white px-6 py-2 rounded-full 
+                hover:bg-white hover:text-black transition">
         <Link to="/login" onClick={() => setIsMenuOpen(false)}>
             Login
           </Link>
