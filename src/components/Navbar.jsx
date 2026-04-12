@@ -72,6 +72,8 @@ const Navbar = () => {
         </button>
       </div>
 
+
+
       {/* Mobile Menu */}
       <div
         className={`fixed top-0 left-0 w-full h-screen bg-white text-gray-800 
