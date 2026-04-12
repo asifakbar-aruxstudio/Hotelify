@@ -46,8 +46,8 @@ const Navbar = () => {
       {/* Desktop Right */}
       <div className="hidden md:flex items-center gap-4">
         <button className="bg-white text-black px-6 py-2 rounded-full 
-        hover:bg-green-200 transition">
-        <Link to="/login" className="text-black no-underline">
+        hover:bg-green-900 hover:text-white transition">
+        <Link to="/login">
           Login
         </Link>
         </button>
