@@ -1,7 +1,7 @@
 import React from 'react'
 import {Routes, Route, useLocation } from 'react-router-dom'   
 import Navbar from './components/Navbar';
-import Whatsapp from './pages/whatsapp';
+import Whatsapp from './pages/Whatsapp';
 import Home from './pages/Home';
 import About from './pages/About';
 import Hotels from './pages/Hotels';
@@ -21,8 +21,8 @@ function App() {
     <>
       {!ownerPath && <Navbar />}     
       
-      <Whatsapp />  
       <Routes>
+        <Route path="/whatsapp" element={<Whatsapp />} />
       
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

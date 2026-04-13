@@ -44,16 +44,18 @@ const Footer = () => {
               Streamline bookings, automate operations, and boost revenue.
             </p>
             <div className="flex gap-3">
-              {socialLinks.map(({ icon:  href, label }) => (
+              {socialLinks.map((link) => {
+                const SocialIcon = link.icon;
+                return (
                 <Link
-                  key={label}
-                  to={href}
-                  aria-label={label}
+                  key={link.label}
+                  to={link.href}
+                  aria-label={link.label}
                   className="p-2.5 rounded-lg bg-gray-800 hover:bg-emerald-500 hover:text-white text-gray-400 transition-all duration-200"
                 >
-                  <Icon className="w-4 h-4" />
+                  <SocialIcon className="w-4 h-4" />
                 </Link>
-              ))}
+              )})}
             </div>
           </div>
 
