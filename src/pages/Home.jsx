@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion"; // eslint-disable-line no-unused-vars
 import { MapPinIcon, CalendarIcon, UsersIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { HiChevronDown } from "react-icons/hi"; 
-import { motion } from "framer-motion";
+import { HiChevronDown } from "react-icons/hi";
 const heroImages = [
   "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80",
   "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1920&q=80",
