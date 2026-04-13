@@ -44,7 +44,7 @@ const Footer = () => {
               Streamline bookings, automate operations, and boost revenue.
             </p>
             <div className="flex gap-3">
-              {socialLinks.map(({ icon: Icon, href, label }) => (
+              {socialLinks.map(({ icon:  href, label }) => (
                 <Link
                   key={label}
                   to={href}
