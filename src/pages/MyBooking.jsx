@@ -18,19 +18,21 @@ import {
   HiOutlineXMark,
   HiOutlineCheck,
   HiOutlineMapPin,
-  HiOutlineCalendarDays
+  HiOutlineCalendarDays,
+  HiOutlineClock
 } from 'react-icons/hi2';
-import { FaHotel, FaUserTie } from 'react-icons/fa6';
+import { FaHotel, FaUserTie, FaRulerCombined } from 'react-icons/fa6';
 
 const OwnerDashboard = () => {
   const navigate = useNavigate();
-  const { user, logout, getHotelsByOwner, getStats, updateHotel, deleteHotel, addRoom, updateRoom, deleteRoom } = useContext(AppContext);
+  const { user, logout, getHotelsByOwner, getStats, updateHotel, deleteHotel, addRoom, updateRoom, deleteRoom, getBookingsByCustomer, getCustomerStats, cancelBooking, hotels } = useContext(AppContext);
   
   const [activeTab, setActiveTab] = useState('overview');
   const [editingHotel, setEditingHotel] = useState(null);
   const [showAddRoom, setShowAddRoom] = useState(null);
   const [showEditRoom, setShowEditRoom] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [customerTab, setCustomerTab] = useState('upcoming');
 
   const ownerHotels = useMemo(() => {
     return user ? getHotelsByOwner(user.id) : [];
@@ -39,6 +41,39 @@ const OwnerDashboard = () => {
   const stats = useMemo(() => {
     return user ? getStats(user.id) : { hotels: 0, rooms: 0, bookings: 0, rating: 0, revenue: 0 };
   }, [user, getStats]);
+
+  // Customer bookings
+  const myBookings = useMemo(() => {
+    return user ? getBookingsByCustomer(user.id) : [];
+  }, [user, getBookingsByCustomer]);
+
+  const customerStats = useMemo(() => {
+    return user ? getCustomerStats(user.id) : { totalBookings: 0, totalSpent: 0, upcoming: 0, completed: 0 };
+  }, [user, getCustomerStats]);
+
+  const getHotelDetails = (hotelId) => {
+    return hotels.find(h => h.id === hotelId);
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+  };
+
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const filteredBookings = useMemo(() => {
+    const now = new Date();
+    if (customerTab === 'upcoming') {
+      return myBookings.filter(b => new Date(b.checkIn) >= now && b.status === 'confirmed');
+    } else if (customerTab === 'completed') {
+      return myBookings.filter(b => new Date(b.checkOut) < now || b.status === 'completed');
+    } else if (customerTab === 'cancelled') {
+      return myBookings.filter(b => b.status === 'cancelled');
+    }
+    return myBookings;
+  }, [myBookings, customerTab]);
 
   const [hotelForm, setHotelForm] = useState({
     name: '',
@@ -60,6 +95,11 @@ const OwnerDashboard = () => {
     maxGuests: ''
   });
 
+  const handleCancelBooking = (bookingId) => {
+    cancelBooking(bookingId);
+    toast.success('Booking cancelled successfully!');
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -67,11 +107,192 @@ const OwnerDashboard = () => {
           <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <FaUserTie className="w-10 h-10 text-gray-400" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Owner Dashboard</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            {user?.isHotelOwner ? 'Owner Dashboard' : 'My Bookings'}
+          </h2>
           <p className="text-gray-600 mb-6">Please login to access your dashboard</p>
-          <Link to="/signup" className="px-6 py-3 bg-emerald-500 text-white font-medium rounded-xl hover:bg-emerald-600 transition-colors">
-            Register / Login
+          <Link to="/login" className="px-6 py-3 bg-emerald-500 text-white font-medium rounded-xl hover:bg-emerald-600 transition-colors">
+            Login
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Customer View (not hotel owner)
+  if (!user.isHotelOwner) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <Link to="/" className="flex items-center gap-2">
+                <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                  Hotelify
+                </span>
+              </Link>
+              <div className="flex items-center gap-4">
+                <div className="hidden md:block text-right">
+                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+                <button
+                  onClick={() => { logout(); navigate('/'); toast.success('Logged out!'); }}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  <HiOutlineArrowRightOnRectangle className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {[
+              { label: 'Total Bookings', value: customerStats.totalBookings, icon: HiOutlineHomeModern, color: 'bg-blue-500' },
+              { label: 'Total Spent', value: formatCurrency(customerStats.totalSpent), icon: HiOutlineCurrencyDollar, color: 'bg-green-500' },
+              { label: 'Upcoming', value: customerStats.upcoming, icon: HiOutlineClock, color: 'bg-purple-500' },
+              { label: 'Completed', value: customerStats.completed, icon: HiOutlineCheck, color: 'bg-amber-500' }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white p-4 rounded-2xl shadow-sm"
+              >
+                <div className={`w-10 h-10 ${stat.color} rounded-xl flex items-center justify-center mb-3`}>
+                  <stat.icon className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm text-gray-500">{stat.label}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto">
+            {[
+              { id: 'upcoming', label: 'Upcoming' },
+              { id: 'completed', label: 'Completed' },
+              { id: 'cancelled', label: 'Cancelled' },
+              { id: 'all', label: 'All Bookings' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setCustomerTab(tab.id)}
+                className={`px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors ${
+                  customerTab === tab.id
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {filteredBookings.length > 0 ? (
+            <div className="space-y-4">
+              {filteredBookings.map((booking, index) => {
+                const hotel = getHotelDetails(booking.hotelId);
+                return (
+                  <motion.div
+                    key={booking.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-white rounded-2xl shadow-sm overflow-hidden"
+                  >
+                    <div className="p-6">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <div className="w-full md:w-40 h-32 rounded-xl overflow-hidden flex-shrink-0">
+                          <img
+                            src={hotel?.image || booking.hotelImage}
+                            alt={booking.hotelName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900">{booking.hotelName}</h3>
+                              <p className="text-gray-500 flex items-center gap-1 mt-1">
+                                <HiOutlineMapPin className="w-4 h-4" />
+                                {booking.city}, {booking.province}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              booking.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                              booking.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-6 mt-4 text-sm">
+                            <div className="flex items-center gap-2">
+                              <HiOutlineCalendarDays className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                Check-in: <span className="font-medium text-gray-900">{formatDate(booking.checkIn)}</span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <HiOutlineCalendarDays className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                Check-out: <span className="font-medium text-gray-900">{formatDate(booking.checkOut)}</span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <HiOutlineUserGroup className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">{booking.guests} Guests</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <FaRulerCombined className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">{booking.roomType}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                            <div>
+                              <span className="text-2xl font-bold text-gray-900">${booking.totalPrice}</span>
+                              <span className="text-gray-500 text-sm"> total</span>
+                            </div>
+                            {booking.status === 'confirmed' && new Date(booking.checkIn) >= new Date() && (
+                              <button
+                                onClick={() => handleCancelBooking(booking.id)}
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 flex items-center gap-2"
+                              >
+                                <HiOutlineTrash className="w-4 h-4" />
+                                Cancel
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-2xl">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <FaHotel className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No {customerTab} bookings</h3>
+              <p className="text-gray-600 mb-6">
+                {customerTab === 'all' ? "You haven't booked any hotels yet" : `No ${customerTab} bookings found`}
+              </p>
+              <Link 
+                to="/hotels" 
+                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white font-medium rounded-xl hover:bg-emerald-600 transition-colors"
+              >
+                Browse Hotels
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -140,10 +361,6 @@ const OwnerDashboard = () => {
     logout();
     navigate('/');
     toast.success('Logged out successfully!');
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
   };
 
   return (

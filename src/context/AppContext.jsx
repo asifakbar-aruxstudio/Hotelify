@@ -274,6 +274,56 @@ const AppContextProvider = ({ children }) => {
     };
   };
 
+  // Customer bookings management
+  const [bookings, setBookings] = useState(() => {
+    const stored = localStorage.getItem('bookings');
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('bookings', JSON.stringify(bookings));
+  }, [bookings]);
+
+  const createBooking = (bookingData) => {
+    const newBooking = {
+      ...bookingData,
+      id: Date.now(),
+      bookingDate: new Date().toISOString(),
+      status: 'confirmed'
+    };
+    setBookings([newBooking, ...bookings]);
+    return newBooking;
+  };
+
+  const getBookingsByCustomer = (customerId) => {
+    return bookings.filter(b => b.customerId === customerId);
+  };
+
+  const getCustomerStats = (customerId) => {
+    const customerBookings = bookings.filter(b => b.customerId === customerId);
+    const totalBookings = customerBookings.length;
+    const totalSpent = customerBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+    const upcoming = customerBookings.filter(b => 
+      new Date(b.checkIn) >= new Date() && b.status === 'confirmed'
+    ).length;
+    const completed = customerBookings.filter(b => 
+      new Date(b.checkOut) < new Date() || b.status === 'completed'
+    ).length;
+    
+    return {
+      totalBookings,
+      totalSpent,
+      upcoming,
+      completed
+    };
+  };
+
+  const cancelBooking = (bookingId) => {
+    setBookings(bookings.map(b => 
+      b.id === bookingId ? { ...b, status: 'cancelled' } : b
+    ));
+  };
+
   const contextValue = { 
     navigate, 
     user, 
@@ -287,7 +337,12 @@ const AppContextProvider = ({ children }) => {
     updateRoom,
     deleteRoom,
     getHotelsByOwner,
-    getStats
+    getStats,
+    bookings,
+    createBooking,
+    getBookingsByCustomer,
+    getCustomerStats,
+    cancelBooking
   };
     return (
         <AppContext.Provider value={contextValue}>

@@ -1,27 +1,69 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
+import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash } from "react-icons/hi2";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { setUser } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState("customer");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1500);
+
+    setTimeout(() => {
+      if (email && password) {
+        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        
+        let user = storedUsers.find(u => u.email === email);
+        
+        if (!user) {
+          const newUser = {
+            id: Date.now(),
+            name: email.split('@')[0],
+            email,
+            phone: '',
+            isHotelOwner: role === 'owner',
+            createdAt: new Date().toISOString()
+          };
+          storedUsers.push(newUser);
+          localStorage.setItem('users', JSON.stringify(storedUsers));
+          
+          if (role === 'owner') {
+            setUser(newUser);
+            toast.success('Welcome to your dashboard!');
+            navigate('/owner/dashboard');
+          } else {
+            setUser(newUser);
+            toast.success('Login successful!');
+            navigate('/my-bookings');
+          }
+        } else {
+          if (user.isHotelOwner) {
+            setUser(user);
+            navigate('/owner/dashboard');
+          } else {
+            setUser(user);
+            navigate('/my-bookings');
+          }
+          toast.success('Login successful!');
+        }
+      } else {
+        toast.error('Invalid credentials');
+      }
+      setIsLoading(false);
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-emerald-50/30 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
-      >
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-emerald-50/30 px-4 py-12">
+      <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
           <div className="p-8 sm:p-10">
             <div className="text-center mb-8">
@@ -32,6 +74,31 @@ const Login = () => {
               <p className="text-sm text-gray-500 mt-2">Sign in to continue to Hotelify</p>
             </div>
 
+            <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+              <button
+                type="button"
+                onClick={() => setRole("customer")}
+                className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
+                  role === "customer" 
+                    ? "bg-white text-emerald-600 shadow-sm" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                I'm a Guest
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("owner")}
+                className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
+                  role === "owner" 
+                    ? "bg-white text-emerald-600 shadow-sm" 
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Hotel Owner
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -39,7 +106,7 @@ const Login = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <HiOutlineMail className="w-5 h-5 text-gray-400" />
+                    <HiOutlineEnvelope className="w-5 h-5 text-gray-400" />
                   </div>
                   <input
                     id="email"
@@ -75,7 +142,7 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <HiOutlineEyeOff className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
+                    {showPassword ? <HiOutlineEyeSlash className="w-5 h-5" /> : <HiOutlineEye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
@@ -88,12 +155,12 @@ const Login = () => {
                   />
                   <span className="ml-2 text-sm text-gray-500">Remember me</span>
                 </label>
-                <Link
-                  to="/forgot-password"
+                <button
+                  type="button"
                   className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
                 >
                   Forgot password?
-                </Link>
+                </button>
               </div>
 
               <button
@@ -132,7 +199,7 @@ const Login = () => {
             </p>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

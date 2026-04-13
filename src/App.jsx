@@ -12,9 +12,6 @@ import SignUp from './pages/SignUp';
 import MyBooking from './pages/MyBooking';
 import Footer from './components/Footer';
 
-
-
-
 function App() {
   const location = useLocation();
   const isOwnerPage = location.pathname.startsWith('/owner');
@@ -32,6 +29,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/owner/dashboard" element={<MyBooking />} />
+          <Route path="/my-bookings" element={<MyBooking />} />
           <Route path="/my-booking" element={<MyBooking />} />
       </Routes>
 
