@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import {AnimatePresence } from "motion/react";
 import { MapPinIcon, CalendarIcon, UsersIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { HiChevronDown } from "react-icons/hi";
+import { motion } from "framer-motion"; 
 
 const heroImages = [
   "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80",
