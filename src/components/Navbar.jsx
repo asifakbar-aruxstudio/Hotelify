@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import {  AnimatePresence } from "motion/react";
-
+import { AnimatePresence } from "motion/react";
+import { AppContext } from "../context/AppContext";
+import { FaHotel } from "react-icons/fa6";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -11,6 +12,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
+  const { user } = useContext(AppContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -38,20 +40,34 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                to="/signup"
-                className="px-4 py-2 text-sm font-medium text-gray-600 
-                hover:text-emerald-600 transition-colors">
-                Register Hotel
-              </Link>
+              {user?.isHotelOwner ? (
+                <Link
+                  to="/owner/dashboard"
+                  className="px-5 py-2 text-sm font-medium rounded-full 
+                  bg-emerald-500 text-white hover:bg-emerald-600 transition-all 
+                  duration-200 shadow-lg shadow-emerald-500/30 flex items-center gap-2"
+                >
+                  <FaHotel className="w-4 h-4" />
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/signup"
+                    className="px-4 py-2 text-sm font-medium text-gray-600 
+                    hover:text-emerald-600 transition-colors">
+                    Register Hotel
+                  </Link>
 
-              <Link
-                to="/login"
-                className="px-5 py-2 text-sm font-medium rounded-full 
-                bg-emerald-500 text-white hover:bg-emerald-600 transition-all 
-                duration-200 shadow-lg shadow-emerald-500/30">
-                Login
-              </Link>
+                  <Link
+                    to="/login"
+                    className="px-5 py-2 text-sm font-medium rounded-full 
+                    bg-emerald-500 text-white hover:bg-emerald-600 transition-all 
+                    duration-200 shadow-lg shadow-emerald-500/30">
+                    Login
+                  </Link>
+                </>
+              )}
             </div>
 
             <button

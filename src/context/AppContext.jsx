@@ -170,8 +170,10 @@ const initialHotels = [
 
 const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [owners, setOwners] = useState(null);
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : null;
+  });
   const [hotels, setHotels] = useState(() => {
     const stored = localStorage.getItem('hotels');
     return stored ? JSON.parse(stored) : initialHotels;
@@ -181,18 +183,112 @@ const AppContextProvider = ({ children }) => {
     localStorage.setItem('hotels', JSON.stringify(hotels));
   }, [hotels]);
 
-  const addHotel = (hotel) => {
+  useEffect(() => {
+    localStorage.setItem('user', JSON.stringify(user));
+  }, [user]);
+
+  const login = (userData) => {
+    setUser(userData);
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+  };
+
+  const addHotel = (hotel, ownerId) => {
     const newHotel = {
       ...hotel,
       id: Date.now(),
+      ownerId,
       rating: 0,
       reviews: 0,
-      featured: true
+      featured: true,
+      createdAt: new Date().toISOString()
     };
     setHotels([newHotel, ...hotels]);
+    return newHotel;
   };
 
-  const contextValue = { navigate, user, setUser, owners, setOwners, hotels, addHotel };
+  const updateHotel = (hotelId, updates) => {
+    setHotels(hotels.map(h => 
+      h.id === hotelId ? { ...h, ...updates } : h
+    ));
+  };
+
+  const deleteHotel = (hotelId) => {
+    setHotels(hotels.filter(h => h.id !== hotelId));
+  };
+
+  const addRoom = (hotelId, room) => {
+    const newRoom = { ...room, available: parseInt(room.available) || 1 };
+    setHotels(hotels.map(h => 
+      h.id === hotelId 
+        ? { ...h, rooms: [...h.rooms, newRoom] }
+        : h
+    ));
+  };
+
+  const updateRoom = (hotelId, roomType, updates) => {
+    setHotels(hotels.map(h => 
+      h.id === hotelId 
+        ? { 
+            ...h, 
+            rooms: h.rooms.map(r => 
+              r.type === roomType ? { ...r, ...updates } : r
+            )
+          }
+        : h
+    ));
+  };
+
+  const deleteRoom = (hotelId, roomType) => {
+    setHotels(hotels.map(h => 
+      h.id === hotelId 
+        ? { ...h, rooms: h.rooms.filter(r => r.type !== roomType) }
+        : h
+    ));
+  };
+
+  const getHotelsByOwner = (ownerId) => {
+    return hotels.filter(h => h.ownerId === ownerId);
+  };
+
+  const getStats = (ownerId) => {
+    const ownerHotels = hotels.filter(h => h.ownerId === ownerId);
+    const totalRooms = ownerHotels.reduce((sum, h) => sum + h.rooms.length, 0);
+    const totalBookings = ownerHotels.reduce((sum, h) => sum + h.reviews * 12, 0);
+    const avgRating = ownerHotels.length > 0 
+      ? (ownerHotels.reduce((sum, h) => sum + h.rating, 0) / ownerHotels.length).toFixed(1)
+      : 0;
+    const totalRevenue = ownerHotels.reduce((sum, h) => {
+      return sum + h.rooms.reduce((s, r) => s + (r.price * r.available * 30), 0);
+    }, 0);
+    
+    return {
+      hotels: ownerHotels.length,
+      rooms: totalRooms,
+      bookings: totalBookings,
+      rating: avgRating,
+      revenue: totalRevenue
+    };
+  };
+
+  const contextValue = { 
+    navigate, 
+    user, 
+    setUser: login, 
+    logout,
+    hotels, 
+    addHotel,
+    updateHotel,
+    deleteHotel,
+    addRoom,
+    updateRoom,
+    deleteRoom,
+    getHotelsByOwner,
+    getStats
+  };
     return (
         <AppContext.Provider value={contextValue}>
             {children}

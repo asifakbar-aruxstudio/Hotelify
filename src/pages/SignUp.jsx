@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
 import { 
@@ -17,7 +17,7 @@ import { FaHotel, FaBuildingColumns, FaWhatsapp } from 'react-icons/fa6';
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const { addHotel } = useContext(AppContext);
+  const { addHotel, setUser } = useContext(AppContext);
   const [isHotelOwner, setIsHotelOwner] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -72,6 +72,16 @@ const SignUp = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
 
+      const ownerId = Date.now();
+      const user = {
+        id: ownerId,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        isHotelOwner,
+        createdAt: new Date().toISOString()
+      };
+
       if (isHotelOwner && hotelData.name) {
         const newHotel = {
           name: hotelData.name,
@@ -98,13 +108,15 @@ const SignUp = () => {
           phone: hotelData.phone || userData.phone,
           email: hotelData.email || userData.email,
         };
-        addHotel(newHotel);
+        addHotel(ownerId, newHotel);
+        setUser(user);
         toast.success('Hotel registered successfully!');
+        navigate('/owner/dashboard');
       } else {
+        setUser(user);
         toast.success('Account created successfully!');
+        navigate('/hotels');
       }
-      
-      navigate('/hotels');
     } catch {
       toast.error('Something went wrong. Please try again.');
     } finally {

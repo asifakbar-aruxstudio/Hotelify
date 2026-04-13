@@ -16,10 +16,12 @@ import Footer from './components/Footer';
 
 
 function App() {
-  const ownerPath = useLocation().pathname.includes('/owner');
+  const location = useLocation();
+  const isOwnerPage = location.pathname.startsWith('/owner');
+
   return (
     <>
-      {!ownerPath && <Navbar />}     
+      {!isOwnerPage && <Navbar />}     
       
       <Routes>
           <Route path="/" element={<Home />} />
@@ -29,11 +31,12 @@ function App() {
           <Route path="/single-room/:id" element={<SingleRoom />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/owner/dashboard" element={<MyBooking />} />
           <Route path="/my-booking" element={<MyBooking />} />
       </Routes>
 
-      {!ownerPath && <WhatsAppWidget />}
-      {!ownerPath && <Footer />}
+      {!isOwnerPage && <WhatsAppWidget />}
+      {!isOwnerPage && <Footer />}
     </>
   )     
 }
