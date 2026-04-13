@@ -1,7 +1,7 @@
 import React from 'react'
 import {Routes, Route, useLocation } from 'react-router-dom'   
 import Navbar from './components/Navbar';
-import Whatsapp from './pages/Whatsapp';
+import WhatsAppWidget from './pages/Whatsapp';
 import Home from './pages/Home';
 import About from './pages/About';
 import Hotels from './pages/Hotels';
@@ -22,8 +22,6 @@ function App() {
       {!ownerPath && <Navbar />}     
       
       <Routes>
-        <Route path="/whatsapp" element={<Whatsapp />} />
-      
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/hotels" element={<Hotels />} />
@@ -32,11 +30,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/my-booking" element={<MyBooking />} />
-      
-        </Routes>
-        {
-          !ownerPath && <Footer />
-        }
+      </Routes>
+
+      {!ownerPath && <WhatsAppWidget />}
+      {!ownerPath && <Footer />}
     </>
   )     
 }
