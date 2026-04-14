@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import MyBooking from './pages/MyBooking';
 import Footer from './components/Footer';
+import Chatbot from './pages/Chatbot';
 
 function App() {
   const location = useLocation();
@@ -34,6 +35,7 @@ function App() {
       </Routes>
 
       {!isOwnerPage && <WhatsAppWidget />}
+      {!isOwnerPage && <Chatbot />}
       {!isOwnerPage && <Footer />}
     </>
   )     
