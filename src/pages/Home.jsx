@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion"; // eslint-disable-line 
 import { MapPinIcon, CalendarIcon, UsersIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { HiChevronDown } from "react-icons/hi";
+
 const heroImages = [
   "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80",
   "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1920&q=80",
@@ -18,6 +19,34 @@ const popularDestinations = [
   { name: "London", hotels: 142 },
   { name: "Tokyo", hotels: 128 },
   { name: "Singapore", hotels: 98 },
+  { name: "Sydney", hotels: 87 },
+  { name: "Rome", hotels: 76 },
+  { name: "Bangkok", hotels: 65 },
+  { name: "Barcelona", hotels: 54 },
+  { name: "Los Angeles", hotels: 43 },
+  { name: "Istanbul", hotels: 32 },
+  { name: "Hong Kong", hotels: 21 },
+  { name: "Amsterdam", hotels: 15 },
+  { name: "Moscow", hotels: 10 },
+  { name: "Rio de Janeiro", hotels: 8 },
+  { name: "Cape Town", hotels: 5 },
+  { name: "Toronto", hotels: 3 },
+  { name: "Seoul", hotels: 2 },
+  { name: "Mumbai", hotels: 1 },
+  { name: "Berlin", hotels: 0 },
+  { name: "Vienna", hotels: 0 },
+  { name: "Prague", hotels: 0 },
+  { name: "Lisbon", hotels: 0 },
+  { name: "Athens", hotels: 0 },
+  { name: "Cairo", hotels: 0 },
+  { name: "Mexico City", hotels: 0 },
+  { name: "Buenos Aires", hotels: 0 },
+  { name: "Lima", hotels: 0 },
+  { name: "Sao Paulo", hotels: 0 },
+  { name: "Jakarta", hotels: 0 },
+  { name: "Kuala Lumpur", hotels: 0 },
+  {name: "Pakistan", hotels: 1000 },
+
 ];
 
 const Home = () => {
@@ -53,7 +82,7 @@ const Home = () => {
           >
             <div className="absolute inset-0 bg-black/40" />
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center blur-[3px] scale-105"
               style={{ backgroundImage: `url(${heroImages[currentSlide]})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
