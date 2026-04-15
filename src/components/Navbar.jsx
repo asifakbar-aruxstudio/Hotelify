@@ -17,6 +17,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const handleNavClick = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -37,13 +42,14 @@ const Navbar = () => {
 
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
-                <Link
+                <button
                   key={link.path}
-                  to={link.path}
-                  className="relative py-2 text-gray-600 hover:text-emerald-600 transition-colors duration-200"
+                  onClick={() => handleNavClick(link.path)}
+                  className="relative py-2 text-gray-600 hover:text-emerald-600 
+                  transition-colors duration-200"
                 >
                   {link.name}
-                </Link>
+                </button>
               ))}
             </div>
 
@@ -153,14 +159,13 @@ const Navbar = () => {
                     <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Navigation</p>
                     <div className="space-y-1">
                       {navLinks.map((link) => (
-                        <Link
+                        <button
                           key={link.path}
-                          to={link.path}
-                          onClick={() => setIsMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors"
+                          onClick={() => handleNavClick(link.path)}
+                          className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors w-full text-left"
                         >
                           {link.name}
-                        </Link>
+                        </button>
                       ))}
                     </div>
                   </div>
