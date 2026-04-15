@@ -15,6 +15,8 @@ import {
 } from 'react-icons/hi2';
 import { FaHotel, FaBuildingColumns, FaWhatsapp } from 'react-icons/fa6';
 
+const USE_API = import.meta.env.VITE_USE_API === 'true';
+
 const SignUp = () => {
   const navigate = useNavigate();
   const { addHotel, setUser } = useContext(AppContext);
@@ -70,55 +72,107 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const ownerId = Date.now();
-      const user = {
-        id: ownerId,
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        isHotelOwner,
-        createdAt: new Date().toISOString()
-      };
-
-      if (isHotelOwner && hotelData.name) {
-        const newHotel = {
-          name: hotelData.name,
-          city: hotelData.city,
-          province: hotelData.province,
-          country: hotelData.country,
-          location: hotelData.location || `${hotelData.city}, ${hotelData.province}`,
-          description: hotelData.description || `Welcome to ${hotelData.name}, a luxury hotel in ${hotelData.city}.`,
-          price: parseInt(hotelData.price) || 200,
-          image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-          images: [
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-            'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80',
-            'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80'
-          ],
-          amenities: hotelData.amenities.length > 0 
-            ? hotelData.amenities 
-            : ['WiFi', 'Pool', 'Restaurant', 'Parking'],
-          rooms: [
-            { type: 'Standard Room', price: parseInt(hotelData.price) || 200, available: 10, maxGuests: 2 },
-            { type: 'Deluxe Room', price: (parseInt(hotelData.price) || 200) + 100, available: 5, maxGuests: 2 },
-            { type: 'Suite', price: (parseInt(hotelData.price) || 200) + 300, available: 3, maxGuests: 4 }
-          ],
-          phone: hotelData.phone || userData.phone,
-          email: hotelData.email || userData.email,
+      if (USE_API) {
+        const registerData = {
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          phone: userData.phone,
+          isHotelOwner
         };
-        addHotel(ownerId, newHotel);
-        setUser(user);
-        toast.success('Hotel registered successfully!');
-        navigate('/owner/dashboard');
+
+        if (isHotelOwner && hotelData.name) {
+          registerData.hotel = {
+            name: hotelData.name,
+            city: hotelData.city,
+            province: hotelData.province,
+            country: hotelData.country,
+            location: hotelData.location || `${hotelData.city}, ${hotelData.province}`,
+            description: hotelData.description,
+            price: parseInt(hotelData.price) || 200,
+            amenities: hotelData.amenities.length > 0 ? hotelData.amenities : ['WiFi', 'Pool', 'Restaurant', 'Parking'],
+            phone: hotelData.phone || userData.phone,
+            email: hotelData.email || userData.email
+          };
+        }
+
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(registerData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Registration failed');
+        }
+
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+
+        setUser(data.user);
+
+        if (data.user.isHotelOwner) {
+          toast.success('Hotel registered successfully!');
+          navigate('/owner/dashboard');
+        } else {
+          toast.success('Account created successfully!');
+          navigate('/hotels');
+        }
       } else {
-        setUser(user);
-        toast.success('Account created successfully!');
-        navigate('/hotels');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        const ownerId = Date.now();
+        const user = {
+          id: ownerId,
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phone,
+          isHotelOwner,
+          createdAt: new Date().toISOString()
+        };
+
+        if (isHotelOwner && hotelData.name) {
+          const newHotel = {
+            name: hotelData.name,
+            city: hotelData.city,
+            province: hotelData.province,
+            country: hotelData.country,
+            location: hotelData.location || `${hotelData.city}, ${hotelData.province}`,
+            description: hotelData.description || `Welcome to ${hotelData.name}, a luxury hotel in ${hotelData.city}.`,
+            price: parseInt(hotelData.price) || 200,
+            image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+            images: [
+              'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
+              'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80',
+              'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80'
+            ],
+            amenities: hotelData.amenities.length > 0 
+              ? hotelData.amenities 
+              : ['WiFi', 'Pool', 'Restaurant', 'Parking'],
+            rooms: [
+              { type: 'Standard Room', price: parseInt(hotelData.price) || 200, available: 10, maxGuests: 2 },
+              { type: 'Deluxe Room', price: (parseInt(hotelData.price) || 200) + 100, available: 5, maxGuests: 2 },
+              { type: 'Suite', price: (parseInt(hotelData.price) || 200) + 300, available: 3, maxGuests: 4 }
+            ],
+            phone: hotelData.phone || userData.phone,
+            email: hotelData.email || userData.email,
+          };
+          addHotel(ownerId, newHotel);
+          setUser(user);
+          toast.success('Hotel registered successfully!');
+          navigate('/owner/dashboard');
+        } else {
+          setUser(user);
+          toast.success('Account created successfully!');
+          navigate('/hotels');
+        }
       }
-    } catch {
-      toast.error('Something went wrong. Please try again.');
+    } catch (err) {
+      toast.error(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -140,7 +194,6 @@ const SignUp = () => {
         </div>
 
         <div className="bg-white rounded-2xl p-8 shadow-2xl">
-          {/* Toggle */}
           <div className="flex bg-gray-100 rounded-xl p-1 mb-8">
             <button
               onClick={() => setIsHotelOwner(false)}
@@ -167,7 +220,6 @@ const SignUp = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* User Fields (Required for everyone) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
               <div className="relative">
@@ -235,7 +287,6 @@ const SignUp = () => {
               </div>
             </div>
 
-            {/* Hotel Owner Fields */}
             {isHotelOwner && (
               <>
                 <div className="pt-6 border-t">

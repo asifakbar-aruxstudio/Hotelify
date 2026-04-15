@@ -4,61 +4,97 @@ import { AppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash } from "react-icons/hi2";
 
+const USE_API = import.meta.env.VITE_USE_API === 'true';
+
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useContext(AppContext);
+  const { setUser, loading, error } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState("customer");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      if (email && password) {
-        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    try {
+      if (USE_API) {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
         
-        let user = storedUsers.find(u => u.email === email);
+        const data = await response.json();
         
-        if (!user) {
-          const newUser = {
-            id: Date.now(),
-            name: email.split('@')[0],
-            email,
-            phone: '',
-            isHotelOwner: role === 'owner',
-            createdAt: new Date().toISOString()
-          };
-          storedUsers.push(newUser);
-          localStorage.setItem('users', JSON.stringify(storedUsers));
-          
-          if (role === 'owner') {
-            setUser(newUser);
-            toast.success('Welcome to your dashboard!');
-            navigate('/owner/dashboard');
-          } else {
-            setUser(newUser);
-            toast.success('Login successful!');
-            navigate('/my-bookings');
-          }
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed');
+        }
+
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+
+        setUser(data.user);
+        
+        if (data.user.isHotelOwner) {
+          toast.success('Welcome to your dashboard!');
+          navigate('/owner/dashboard');
         } else {
-          if (user.isHotelOwner) {
-            setUser(user);
-            navigate('/owner/dashboard');
-          } else {
-            setUser(user);
-            navigate('/my-bookings');
-          }
           toast.success('Login successful!');
+          navigate('/my-bookings');
         }
       } else {
-        toast.error('Invalid credentials');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        if (email && password) {
+          const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+          
+          let user = storedUsers.find(u => u.email === email);
+          
+          if (!user) {
+            const newUser = {
+              id: Date.now(),
+              name: email.split('@')[0],
+              email,
+              phone: '',
+              isHotelOwner: role === 'owner',
+              createdAt: new Date().toISOString()
+            };
+            storedUsers.push(newUser);
+            localStorage.setItem('users', JSON.stringify(storedUsers));
+            
+            if (role === 'owner') {
+              setUser(newUser);
+              toast.success('Welcome to your dashboard!');
+              navigate('/owner/dashboard');
+            } else {
+              setUser(newUser);
+              toast.success('Login successful!');
+              navigate('/my-bookings');
+            }
+          } else {
+            if (user.isHotelOwner) {
+              setUser(user);
+              navigate('/owner/dashboard');
+            } else {
+              setUser(user);
+              navigate('/my-bookings');
+            }
+            toast.success('Login successful!');
+          }
+        } else {
+          toast.error('Invalid credentials');
+        }
       }
+    } catch (err) {
+      toast.error(err.message || 'Login failed. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-// eslint-disable-next-line react-refresh/only-export-components
-export const AppContext = createContext();
+import { authAPI, hotelsAPI, bookingsAPI } from '../api';
+
+const USE_API = import.meta.env.VITE_USE_API === 'true';
 
 const initialHotels = [
   {
@@ -168,6 +169,8 @@ const initialHotels = [
   }
 ];
 
+export const AppContext = createContext();
+
 const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(() => {
@@ -178,6 +181,8 @@ const AppContextProvider = ({ children }) => {
     const stored = localStorage.getItem('hotels');
     return stored ? JSON.parse(stored) : initialHotels;
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('hotels', JSON.stringify(hotels));
@@ -187,67 +192,215 @@ const AppContextProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(user));
   }, [user]);
 
-  const login = (userData) => {
-    setUser(userData);
+  const login = async (userData) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const response = await authAPI.login(userData.email, userData.password);
+        setUser(response.user);
+        return response;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setUser(userData);
+      return userData;
+    }
   };
 
   const logout = () => {
+    if (USE_API) {
+      authAPI.logout();
+    }
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
-  const addHotel = (hotel, ownerId) => {
-    const newHotel = {
-      ...hotel,
-      id: Date.now(),
-      ownerId,
-      rating: 0,
-      reviews: 0,
-      featured: true,
-      createdAt: new Date().toISOString()
-    };
-    setHotels([newHotel, ...hotels]);
-    return newHotel;
+  const fetchHotels = useCallback(async (params = {}) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const data = await hotelsAPI.getAllHotels(params);
+        setHotels(data.hotels || data);
+        return data;
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  const fetchHotelById = async (id) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        return await hotelsAPI.getHotelById(id);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      return hotels.find(h => h.id === parseInt(id));
+    }
   };
 
-  const updateHotel = (hotelId, updates) => {
-    setHotels(hotels.map(h => 
-      h.id === hotelId ? { ...h, ...updates } : h
-    ));
+  const addHotel = async (hotel, ownerId) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const newHotel = await hotelsAPI.createHotel({ ...hotel, ownerId });
+        setHotels([newHotel, ...hotels]);
+        return newHotel;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      const newHotel = {
+        ...hotel,
+        id: Date.now(),
+        ownerId,
+        rating: 0,
+        reviews: 0,
+        featured: true,
+        createdAt: new Date().toISOString()
+      };
+      setHotels([newHotel, ...hotels]);
+      return newHotel;
+    }
   };
 
-  const deleteHotel = (hotelId) => {
-    setHotels(hotels.filter(h => h.id !== hotelId));
+  const updateHotel = async (hotelId, updates) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const updated = await hotelsAPI.updateHotel(hotelId, updates);
+        setHotels(hotels.map(h => h.id === hotelId ? updated : h));
+        return updated;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setHotels(hotels.map(h => 
+        h.id === hotelId ? { ...h, ...updates } : h
+      ));
+    }
   };
 
-  const addRoom = (hotelId, room) => {
+  const deleteHotel = async (hotelId) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        await hotelsAPI.deleteHotel(hotelId);
+        setHotels(hotels.filter(h => h.id !== hotelId));
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setHotels(hotels.filter(h => h.id !== hotelId));
+    }
+  };
+
+  const addRoom = async (hotelId, room) => {
     const newRoom = { ...room, available: parseInt(room.available) || 1 };
-    setHotels(hotels.map(h => 
-      h.id === hotelId 
-        ? { ...h, rooms: [...h.rooms, newRoom] }
-        : h
-    ));
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const created = await hotelsAPI.createRoom(hotelId, newRoom);
+        setHotels(hotels.map(h => 
+          h.id === hotelId 
+            ? { ...h, rooms: [...h.rooms, created] }
+            : h
+        ));
+        return created;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setHotels(hotels.map(h => 
+        h.id === hotelId 
+          ? { ...h, rooms: [...h.rooms, newRoom] }
+          : h
+      ));
+    }
   };
 
-  const updateRoom = (hotelId, roomType, updates) => {
-    setHotels(hotels.map(h => 
-      h.id === hotelId 
-        ? { 
-            ...h, 
-            rooms: h.rooms.map(r => 
-              r.type === roomType ? { ...r, ...updates } : r
-            )
-          }
-        : h
-    ));
+  const updateRoom = async (hotelId, roomType, updates) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const updated = await hotelsAPI.updateRoom(hotelId, roomType, updates);
+        setHotels(hotels.map(h => 
+          h.id === hotelId 
+            ? { 
+                ...h, 
+                rooms: h.rooms.map(r => 
+                  r.type === roomType ? { ...r, ...updates } : r
+                )
+              }
+            : h
+        ));
+        return updated;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setHotels(hotels.map(h => 
+        h.id === hotelId 
+          ? { 
+              ...h, 
+              rooms: h.rooms.map(r => 
+                r.type === roomType ? { ...r, ...updates } : r
+              )
+            }
+          : h
+      ));
+    }
   };
 
-  const deleteRoom = (hotelId, roomType) => {
-    setHotels(hotels.map(h => 
-      h.id === hotelId 
-        ? { ...h, rooms: h.rooms.filter(r => r.type !== roomType) }
-        : h
-    ));
+  const deleteRoom = async (hotelId, roomType) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        await hotelsAPI.deleteRoom(hotelId, roomType);
+        setHotels(hotels.map(h => 
+          h.id === hotelId 
+            ? { ...h, rooms: h.rooms.filter(r => r.type !== roomType) }
+            : h
+        ));
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setHotels(hotels.map(h => 
+        h.id === hotelId 
+          ? { ...h, rooms: h.rooms.filter(r => r.type !== roomType) }
+          : h
+      ));
+    }
   };
 
   const getHotelsByOwner = (ownerId) => {
@@ -274,7 +427,6 @@ const AppContextProvider = ({ children }) => {
     };
   };
 
-  // Customer bookings management
   const [bookings, setBookings] = useState(() => {
     const stored = localStorage.getItem('bookings');
     return stored ? JSON.parse(stored) : [];
@@ -284,15 +436,29 @@ const AppContextProvider = ({ children }) => {
     localStorage.setItem('bookings', JSON.stringify(bookings));
   }, [bookings]);
 
-  const createBooking = (bookingData) => {
-    const newBooking = {
-      ...bookingData,
-      id: Date.now(),
-      bookingDate: new Date().toISOString(),
-      status: 'confirmed'
-    };
-    setBookings([newBooking, ...bookings]);
-    return newBooking;
+  const createBooking = async (bookingData) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        const newBooking = await bookingsAPI.createBooking(bookingData);
+        setBookings([newBooking, ...bookings]);
+        return newBooking;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      const newBooking = {
+        ...bookingData,
+        id: Date.now(),
+        bookingDate: new Date().toISOString(),
+        status: 'confirmed'
+      };
+      setBookings([newBooking, ...bookings]);
+      return newBooking;
+    }
   };
 
   const getBookingsByCustomer = (customerId) => {
@@ -318,10 +484,25 @@ const AppContextProvider = ({ children }) => {
     };
   };
 
-  const cancelBooking = (bookingId) => {
-    setBookings(bookings.map(b => 
-      b.id === bookingId ? { ...b, status: 'cancelled' } : b
-    ));
+  const cancelBooking = async (bookingId) => {
+    if (USE_API) {
+      setLoading(true);
+      try {
+        await bookingsAPI.cancelBooking(bookingId);
+        setBookings(bookings.map(b => 
+          b.id === bookingId ? { ...b, status: 'cancelled' } : b
+        ));
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setBookings(bookings.map(b => 
+        b.id === bookingId ? { ...b, status: 'cancelled' } : b
+      ));
+    }
   };
 
   const contextValue = { 
@@ -330,6 +511,7 @@ const AppContextProvider = ({ children }) => {
     setUser: login, 
     logout,
     hotels, 
+    setHotels,
     addHotel,
     updateHotel,
     deleteHotel,
@@ -342,7 +524,11 @@ const AppContextProvider = ({ children }) => {
     createBooking,
     getBookingsByCustomer,
     getCustomerStats,
-    cancelBooking
+    cancelBooking,
+    loading,
+    error,
+    fetchHotels,
+    fetchHotelById
   };
     return (
         <AppContext.Provider value={contextValue}>
@@ -350,7 +536,5 @@ const AppContextProvider = ({ children }) => {
         </AppContext.Provider>
     );
 };
-
-
 
 export default AppContextProvider;

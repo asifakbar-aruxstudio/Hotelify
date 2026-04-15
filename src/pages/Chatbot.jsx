@@ -8,6 +8,7 @@ const Chatbot = () => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const messageIdRef = useRef(2);
 
   const quickQuestions = [
     "What hotels do you have?",
@@ -63,14 +64,14 @@ const Chatbot = () => {
   const handleSend = () => {
     if (!inputText.trim()) return;
 
-    const userMessage = { id: Date.now(), text: inputText, sender: 'user' };
+    const userMessage = { id: messageIdRef.current++, text: inputText, sender: 'user' };
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
 
     setTimeout(() => {
       const botResponse = getBotResponse(inputText);
-      setMessages(prev => [...prev, { id: Date.now() + 1, text: botResponse, sender: 'bot' }]);
+      setMessages(prev => [...prev, { id: messageIdRef.current++, text: botResponse, sender: 'bot' }]);
       setIsTyping(false);
     }, 1000);
   };
