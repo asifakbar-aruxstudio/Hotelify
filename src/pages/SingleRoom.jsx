@@ -1,7 +1,8 @@
 import { useState, useContext, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { AppContext } from '../context/AppContext';
+import toast from 'react-hot-toast';
 import { 
   HiOutlineMapPin,
   HiOutlineStar,
@@ -21,7 +22,8 @@ import { MdVerified } from 'react-icons/md';
 
 const SingleRoom = () => {
   const { id } = useParams();
-  const { hotels } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { hotels, user, createBooking } = useContext(AppContext);
   const [currentImage, setCurrentImage] = useState(0);
   const [selectedRoomType, setSelectedRoomType] = useState(null);
   const [checkIn, setCheckIn] = useState('');
@@ -39,6 +41,45 @@ const SingleRoom = () => {
         ? prev.filter(hid => hid !== hotel.id)
         : [...prev, hotel.id]
     );
+  };
+
+  const handleBooking = () => {
+    if (!user) {
+      toast.error('Please login to book a room');
+      navigate('/login');
+      return;
+    }
+    if (!checkIn || !checkOut) {
+      toast.error('Please select check-in and check-out dates');
+      return;
+    }
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      toast.error('Check-out date must be after check-in date');
+      return;
+    }
+
+    const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+    const totalPrice = selectedRoom.price * nights;
+
+    createBooking({
+      customerId: user.id,
+      customerName: user.name,
+      customerEmail: user.email,
+      hotelId: hotel.id,
+      hotelName: hotel.name,
+      hotelImage: hotel.image,
+      city: hotel.city,
+      province: hotel.province,
+      roomType: selectedRoom.type,
+      checkIn,
+      checkOut,
+      guests,
+      totalPrice,
+      status: 'confirmed'
+    });
+
+    toast.success('Booking confirmed successfully!');
+    navigate('/my-bookings');
   };
 
   if (!hotel) {
@@ -289,7 +330,10 @@ const SingleRoom = () => {
                 </div>
               </div>
 
-              <button className="w-full py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors mb-3">
+              <button 
+                onClick={handleBooking}
+                className="w-full py-4 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors mb-3"
+              >
                 Book Now
               </button>
 

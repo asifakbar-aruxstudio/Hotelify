@@ -31,7 +31,6 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/owner/dashboard" element={<MyBooking />} />
           <Route path="/my-bookings" element={<MyBooking />} />
-          <Route path="/my-booking" element={<MyBooking />} />
       </Routes>
 
       {!isOwnerPage && <WhatsAppWidget />}

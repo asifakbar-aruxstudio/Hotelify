@@ -26,7 +26,9 @@ const Rooms = () => {
 
   const allRooms = useMemo(() => {
     let rooms = [];
+    if (!hotels || hotels.length === 0) return rooms;
     hotels.forEach(hotel => {
+      if (!hotel.rooms) return;
       hotel.rooms.forEach(room => {
         rooms.push({
           ...room,
