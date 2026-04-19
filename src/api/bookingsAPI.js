@@ -1,72 +1,88 @@
-import { apiGet, apiPost, apiPut, apiDelete } from './apiConfig';
+import { apiGet, apiPost, apiPut } from './apiConfig';
 
 export const bookingsAPI = {
-  getAllBookings: async () => {
-    return await apiGet('/bookings');
+  getAllBookings: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = `/bookings${queryString ? `?${queryString}` : ''}`;
+    return await apiGet(endpoint);
   },
 
   getBookingById: async (id) => {
     return await apiGet(`/bookings/${id}`);
   },
 
-  getMyBookings: async () => {
-    return await apiGet('/bookings/my-bookings');
-  },
-
-  getUpcomingBookings: async () => {
-    return await apiGet('/bookings/upcoming');
-  },
-
-  getPastBookings: async () => {
-    return await apiGet('/bookings/past');
-  },
-
   createBooking: async (bookingData) => {
     return await apiPost('/bookings', bookingData);
   },
 
-  updateBooking: async (id, bookingData) => {
-    return await apiPut(`/bookings/${id}`, bookingData);
-  },
-
-  cancelBooking: async (id) => {
-    return await apiPost(`/bookings/${id}/cancel`);
+  cancelBooking: async (id, reason) => {
+    return await apiPut(`/bookings/${id}/cancel`, { cancellationReason: reason });
   },
 
   confirmBooking: async (id) => {
-    return await apiPost(`/bookings/${id}/confirm`);
+    return await apiPut(`/bookings/${id}/confirm`, {});
+  },
+};
+
+export const paymentsAPI = {
+  getPayments: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = `/payments${queryString ? `?${queryString}` : ''}`;
+    return await apiGet(endpoint);
   },
 
-  checkIn: async (id) => {
-    return await apiPost(`/bookings/${id}/check-in`);
+  getPaymentById: async (id) => {
+    return await apiGet(`/payments/${id}`);
   },
 
-  checkOut: async (id) => {
-    return await apiPost(`/bookings/${id}/check-out`);
+  processPayment: async (bookingId, paymentData) => {
+    return await apiPost(`/payments/${bookingId}`, paymentData);
   },
 
-  getBookingByReference: async (reference) => {
-    return await apiGet(`/bookings/reference/${reference}`);
+  refundPayment: async (id) => {
+    return await apiPost(`/payments/${id}/refund`, {});
+  },
+};
+
+export const adminAPI = {
+  getDashboard: async () => {
+    return await apiGet('/admin/dashboard');
   },
 
-  getHotelBookings: async (hotelId) => {
-    return await apiGet(`/bookings/hotel/${hotelId}`);
+  getUsers: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = `/admin/users${queryString ? `?${queryString}` : ''}`;
+    return await apiGet(endpoint);
   },
 
-  getOwnerBookings: async () => {
-    return await apiGet('/bookings/owner');
+  updateUserStatus: async (id, isActive) => {
+    return await apiPut(`/admin/users/${id}/status`, { isActive });
   },
 
-  getBookingStats: async () => {
-    return await apiGet('/bookings/stats');
+  deleteUser: async (id) => {
+    return await apiDelete(`/admin/users/${id}`);
   },
 
-  addPayment: async (bookingId, paymentData) => {
-    return await apiPost(`/bookings/${bookingId}/payment`, paymentData);
+  getPendingHotels: async () => {
+    return await apiGet('/admin/hotels/pending');
   },
 
-  getInvoice: async (bookingId) => {
-    return await apiGet(`/bookings/${bookingId}/invoice`);
+  approveHotel: async (id) => {
+    return await apiPut(`/admin/hotels/${id}/approve`, {});
+  },
+
+  rejectHotel: async (id, reason) => {
+    return await apiPut(`/admin/hotels/${id}/reject`, { reason });
+  },
+
+  getAllBookings: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = `/admin/bookings${queryString ? `?${queryString}` : ''}`;
+    return await apiGet(endpoint);
+  },
+
+  getAnalytics: async () => {
+    return await apiGet('/admin/analytics');
   },
 };
 

@@ -1,5 +1,5 @@
-import React from 'react'
-import {Routes, Route, useLocation } from 'react-router-dom'   
+import React, { useContext } from 'react'
+import {Routes, Route, useLocation, Navigate } from 'react-router-dom'   
 import Navbar from './components/Navbar';
 import WhatsAppWidget from './pages/Whatsapp';
 import Home from './pages/Home';
@@ -12,14 +12,33 @@ import SignUp from './pages/SignUp';
 import MyBooking from './pages/MyBooking';
 import Footer from './components/Footer';
 import Chatbot from './pages/Chatbot';
+import OwnerDashboard from './pages/OwnerDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import { AppContext } from './context/AppContext';
+
+const ProtectedRoute = ({ children, roles }) => {
+  const { user } = useContext(AppContext);
+  const location = useLocation();
+  
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
 
 function App() {
   const location = useLocation();
-  const isOwnerPage = location.pathname.startsWith('/owner');
+  const isOwnerPage = location.pathname.startsWith('/owner') || location.pathname.startsWith('/admin');
+  const isDashboard = location.pathname.includes('dashboard');
 
   return (
     <>
-      {!isOwnerPage && <Navbar />}     
+      {!isDashboard && <Navbar />}     
       
       <Routes>
           <Route path="/" element={<Home />} />
@@ -29,13 +48,26 @@ function App() {
           <Route path="/single-room/:id" element={<SingleRoom />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/owner/dashboard" element={<MyBooking />} />
-          <Route path="/my-bookings" element={<MyBooking />} />
+          <Route path="/owner/dashboard" element={
+            <ProtectedRoute roles={['owner', 'admin']}>
+              <OwnerDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute roles={['admin']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-bookings" element={
+            <ProtectedRoute roles={['customer', 'owner', 'admin']}>
+              <MyBooking />
+            </ProtectedRoute>
+          } />
       </Routes>
 
-      {!isOwnerPage && <WhatsAppWidget />}
-      {!isOwnerPage && <Chatbot />}
-      {!isOwnerPage && <Footer />}
+      {!isDashboard && <WhatsAppWidget />}
+      {!isDashboard && <Chatbot />}
+      {!isDashboard && <Footer />}
     </>
   )     
 }
